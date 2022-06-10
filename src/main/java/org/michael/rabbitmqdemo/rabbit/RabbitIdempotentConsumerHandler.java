@@ -3,9 +3,6 @@ package org.michael.rabbitmqdemo.rabbit;
 import com.rabbitmq.client.Channel;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
-import org.redisson.Redisson;
-import org.redisson.api.RLock;
-import org.redisson.api.RedissonClient;
 import org.springframework.amqp.core.Message;
 import org.springframework.amqp.core.MessageProperties;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
@@ -15,7 +12,6 @@ import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.util.Objects;
-import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
 import static org.springframework.amqp.rabbit.connection.PublisherCallbackChannel.RETURNED_MESSAGE_CORRELATION_KEY;
@@ -63,7 +59,8 @@ public class RabbitIdempotentConsumerHandler {
             } catch (Exception ex) {
                 //处理失败
                 //利用手动 ACK 和 retry 机制解决了消息丢失的问题
-                channel.basicNack(message.getMessageProperties().getDeliveryTag(), false, true);
+                channel.basicNack(message.getMessageProperties().getDeliveryTag(), false, false);
+                //TODO:需要绑定死信队列，失败后消息丢入死信队列，防止消息丢失, 或者存入消费消息表
                 log.info("消息消费失败");
                 //4.1 消费失败，删除redis锁标识，下次冲入队列可以再次消费
                 stringRedisTemplate.delete(key);
