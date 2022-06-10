@@ -1,0 +1,37 @@
+spring:
+  ## 配置返回时间格式, 这里仅支持java.util.Date类型装换
+  jackson:
+    date-format: yyyy-MM-dd HH:mm:ss
+    time-zone: GMT+8
+
+  #rabbitmq配置
+  rabbitmq:
+    #打开消息确认机制, 有两部分：1.生产者投递消息给到exchange，2.exchange分发消息到queue
+    #rabbitmq发送消息到exchange后触发回调确认, CORRELATED模式包含CorrelationData信息
+    publisher-confirm-type: CORRELATED  #1.生产者投递消息给到exchange
+    publisher-returns: true             #2.exchange分发消息到queue
+    #rabbitmq消费者消费确认
+    listener:
+      simple:
+        acknowledge-mode: MANUAL  #手动ack
+    #RabbitMQ地址
+    host: 127.0.0.1
+    port: 5672
+    username: guest
+    password: guest
+  # REDIS (RedisProperties)
+  redis:
+    database: 0
+    host: localhost
+    password: 123456
+    #2.x版本中采用了lettuce作为连接池
+    lettuce:
+      pool:
+        max-active: 8
+        max-idle: 8
+        max-wait: -1ms
+        min-idle: 0
+      shutdown-timeout: 100ms
+## swagger-ui是否生效
+swagger:
+  enabled: true
