@@ -38,13 +38,13 @@ public class DirectConsumer {
 
     @RabbitListener(queues = QUEUE02)
     @RabbitHandler
-    @RabbitIdempotentConsume
     public void consumer02(@Payload String msg, Channel channel, Message message) throws IOException {
         //保证消息消费幂等性
-        rabbitIdempotentConsumerHandler.handle(msg, channel, message, o -> {
-            //真正消费逻辑
-            log.info("routing消费者2号:{}", o);
-        });
+        rabbitIdempotentConsumerHandler.handle(channel, message,
+                new CallbackConsumer(msg, o -> {
+                    //真正消费逻辑
+                    log.info("routing消费者2号:{}", o);
+                }));
     }
 
 

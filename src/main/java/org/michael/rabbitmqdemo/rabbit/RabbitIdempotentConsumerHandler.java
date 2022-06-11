@@ -34,7 +34,7 @@ public class RabbitIdempotentConsumerHandler {
 //    @Autowired
 //    private RedissonClient redissonClient;
 
-    public void handle(Object msgPayload, Channel channel, Message message, Consumer<Object> consumer) throws IOException {
+    public void handle(Channel channel, Message message, CallbackConsumer handler) throws IOException {
         //保证消息消费幂等性
         //1.获取消息id
         MessageProperties messageProperties = message.getMessageProperties();
@@ -50,7 +50,7 @@ public class RabbitIdempotentConsumerHandler {
             //3.加锁成功消费消息
             try {
                 //消费消息
-                consumer.accept(msgPayload);
+                handler.exec();
                 //手动ack确认消息消费成功，保证消息不会丢失
                 channel.basicAck(message.getMessageProperties().getDeliveryTag(), false);
                 log.info("消息消费成功");
